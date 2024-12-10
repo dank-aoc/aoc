@@ -53,7 +53,7 @@ public class ResonantCollinearity {
     }
 
     private static List<Position> getAntennaFromMap(List<List<Character>> map) {
-        List < Position > positions = new ArrayList< >();
+        List<Position> positions = new ArrayList<>();
         for (int i = 0; i < map.size(); i++) {
             for (int j = 0; j < map.get(i).size(); j++) {
                 char c = map.get(i).get(j);
