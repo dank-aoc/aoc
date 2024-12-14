@@ -1,5 +1,8 @@
 package org.aoc.y2024.day13;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
@@ -25,18 +28,18 @@ public class ClawContraption {
     public static void main(String[] args) {
         BigInteger resP1 = BigInteger.ZERO;
         BigInteger resP2 = BigInteger.ZERO;
-        List<List<Object>> clawMachines = parseInput();
-        for (List<Object> clawMachine : clawMachines) {
+        List<ClawMachine> clawMachines = parseInput();
+        for (ClawMachine clawMachine : clawMachines) {
             resP1 = resP1.add(getFewestTokenP1(clawMachine));
-            adjustPrize((Map<Character, BigInteger>) clawMachine.get(2));
+            adjustPrize(clawMachine.getPrize());
             resP2 = resP2.add(getFewestTokenP1(clawMachine));
         }
         System.out.println(resP1);
         System.out.println(resP2);
     }
 
-    private static List<List<Object>> parseInput() {
-        List<List<Object>> input = new ArrayList<>();
+    private static List<ClawMachine> parseInput() {
+        List<ClawMachine> clawMachines = new ArrayList<>();
 
         try {
             Scanner scanner = new Scanner(new File(INPUT_PATH));
@@ -47,31 +50,31 @@ public class ClawContraption {
                 if (tmpInput.size() < 3) {
                     tmpInput.add(row);
                 } else {
-                    setupInput(input, tmpInput);
+                    setupInput(clawMachines, tmpInput);
                     tmpInput.clear();
                 }
             }
 
-            setupInput(input, tmpInput);
+            setupInput(clawMachines, tmpInput);
             scanner.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-        return input;
+        return clawMachines;
     }
 
-    private static void setupInput(List<List<Object>> input, List<String> rawInput) {
+    private static void setupInput(List<ClawMachine> clawMachines, List<String> rawInput) {
         Map<Character, Integer> buttonA = buildButtonMap(rawInput.get(0));
         Map<Character, Integer> buttonB = buildButtonMap(rawInput.get(1));
         Map<Character, BigInteger> prize = buildPrize(rawInput.get(2));
-        input.add(List.of(buttonA, buttonB, prize));
+        clawMachines.add(new ClawMachine(buttonA, buttonB, prize));
     }
 
-    private static BigInteger getFewestTokenP1(List<Object> clawMachine) {
-        Map<Character, Integer> buttonA = (Map<Character, Integer>) clawMachine.get(0);
-        Map<Character, Integer> buttonB = (Map<Character, Integer>) clawMachine.get(1);
-        Map<Character, BigInteger> prize = (Map<Character, BigInteger>) clawMachine.get(2);
+    private static BigInteger getFewestTokenP1(ClawMachine clawMachine) {
+        Map<Character, Integer> buttonA = clawMachine.getButtonA();
+        Map<Character, Integer> buttonB = clawMachine.getButtonB();
+        Map<Character, BigInteger> prize = clawMachine.getPrize();
 
         BigInteger res = BigInteger.ZERO;
         BigInteger a1 = new BigInteger(buttonA.get(X).toString());
@@ -134,8 +137,14 @@ public class ClawContraption {
     }
 
     private static void adjustPrize(Map<Character, BigInteger> prize) {
-        for (Character key : prize.keySet()) {
-            prize.put(key, prize.get(key).add(ADDED_UNIT));
-        }
+        prize.replaceAll((k, v) -> prize.get(k).add(ADDED_UNIT));
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class ClawMachine {
+        private Map<Character, Integer> buttonA;
+        private Map<Character, Integer> buttonB;
+        private Map<Character, BigInteger> prize;
     }
 }
